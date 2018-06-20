@@ -1,4 +1,5 @@
 import libtcodpy as tcod
+from input_handlers import handle_keys
 
 def main():
 	screen_width = 80
@@ -11,14 +12,31 @@ def main():
 
 	tcod.console_init_root(screen_width, screen_height, 'libtcod tutorial revised', False)
 
+	key = tcod.Key()
+	mouse = tcod.Mouse()
+
 	while not tcod.console_is_window_closed():
+		tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
 		tcod.console_set_default_foreground(0, tcod.white)
 		tcod.console_put_char(0, player_x, player_y, '@', tcod.BKGND_NONE)
 		tcod.console_flush()
 
-		key = tcod.console_check_for_keypress()
-		if key.vk == tcod.KEY_ESCAPE:
+		action = handle_keys(key)
+
+		move = action.get('move')
+		exit = action.get('exit')
+		fullscreen = action.get('fullscreen')
+
+		if move:
+			dx, dy = move
+			player_x += dx
+			player_y += dy
+
+		if exit:
 			return True
+
+		if fullscreen:
+			tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
 
 if __name__ == '__main__':
 	main()
